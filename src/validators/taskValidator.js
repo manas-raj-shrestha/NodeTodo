@@ -6,7 +6,9 @@ const SCHEMA = {
   description: Joi.string()
     .label('Task Description')
     .max(200)
-    .required()
+    .required(),
+
+  tags: Joi.array()
 };
 
 function taskValidator(req, res, next) {

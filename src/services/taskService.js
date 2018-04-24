@@ -8,8 +8,15 @@ export function getTasks(id) {
   return Task.fetchAll();
 }
 
-export function createTask(userId, body) {
-  return new Task({ userId, description: body.description }).save().then(task => task.refresh());
+export async function createTask(userId, body) {
+  let tags = body.tags;
+
+  console.log('tags', tags);
+
+  let task = await new Task({ userId, description: body.description }).save();
+  await task.tags().attach(tags);
+
+  return task;
 }
 
 export function updateTask(id, body) {
@@ -20,6 +27,19 @@ export function updateTask(id, body) {
 
 export function deleteTask(id) {
   return new Task({ id }).fetch().then(task => task.destroy());
+}
+
+export function searchTask(req) {
+  console.log(req.params.term);
+
+  // return Task
+  // .where('description', 'LIKE', '%' + req.params.term + '%').fetchAll();
+
+  return Task.query(q => {
+    q.leftJoin('tasks_tags', 'tasks.id', 'tasks_tags.task_id').select('*');
+    q.leftJoin('tags', 'tasks_tags.tag_id', 'tags.id').select('*');
+    q.where('tasks.description', 'like', `%${req.params.term}%`).orWhere('tags.name', 'like', `%${req.params.term}%`);
+  }).fetchAll();
 }
 
 /**

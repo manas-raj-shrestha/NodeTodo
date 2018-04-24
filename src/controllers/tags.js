@@ -7,7 +7,7 @@ import { findTaskWithUser, tagValidator, findTag } from '../validators/tagValida
 
 const router = Router();
 
-router.post('/', tagValidator, getUserInfo, findTaskWithUser, (req, res, next) => {
+router.post('/', tagValidator, getUserInfo, (req, res, next) => {
   tagService
     .createTag(req.body)
     .then(data => res.json({ data }))

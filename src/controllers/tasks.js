@@ -51,4 +51,11 @@ router.delete('/:taskId', getUserInfo, findTask, (req, res, next) => {
     .catch(err => next(err));
 });
 
+router.get('/search/:term', (req, res, next) => {
+  taskService
+    .searchTask(req)
+    .then(data => res.json({ data }))
+    .catch(err => next(err));
+});
+
 export default router;
