@@ -14,7 +14,7 @@ router.post('/', tagValidator, getUserInfo, (req, res, next) => {
     .catch(err => next(err));
 });
 
-router.put('/:tagId', tagValidator, getUserInfo, findTag, findTaskWithUser, (req, res, next) => {
+router.put('/:tagId', tagValidator, getUserInfo, findTag, (req, res, next) => {
   tagService
     .modifyTag(req.body)
     .then(data => res.json({ data }))

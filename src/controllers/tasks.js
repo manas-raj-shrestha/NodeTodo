@@ -21,7 +21,6 @@ router.get('/', getUserInfo, (req, res, next) => {
  * POST /api/users/:id/tasks
  */
 router.post('/', taskValidator, getUserInfo, (req, res, next) => {
-  console.log('user id', req.userId);
   taskService
     .createTask(req.userId, req.body)
     .then(data => res.status(HttpStatus.CREATED).json({ data }))
@@ -51,7 +50,8 @@ router.delete('/:taskId', getUserInfo, findTask, (req, res, next) => {
     .catch(err => next(err));
 });
 
-router.get('/search/:term', (req, res, next) => {
+router.get('/search', (req, res, next) => {
+  console.log(req.query);
   taskService
     .searchTask(req)
     .then(data => res.json({ data }))

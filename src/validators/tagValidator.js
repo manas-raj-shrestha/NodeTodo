@@ -8,11 +8,6 @@ const SCHEMA = {
   name: Joi.string()
     .label('Tag Name')
     .max(200)
-    .required(),
-
-  taskId: Joi.number()
-    .integer()
-    .label('Task Id')
     .required()
 };
 

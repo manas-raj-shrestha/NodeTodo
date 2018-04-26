@@ -4,12 +4,7 @@ import jwt from 'jsonwebtoken';
 import { getUserInfo } from '../middlewares/auth';
 
 export function createTag(reqBody) {
-  return new Tag({ name: reqBody.name })
-    .save()
-    .then(tag => tag.refresh())
-    .then(function(tag) {
-      tag.tasks().attach(reqBody.taskId);
-    });
+  return new Tag({ name: reqBody.name }).save().then(tag => tag.refresh());
 }
 
 export function modifyTag(reqBody) {

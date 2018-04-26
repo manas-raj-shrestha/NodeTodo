@@ -10,7 +10,10 @@ export function up(knex) {
       .notNull()
       .defaultTo(knex.raw('now()'));
     table.timestamp('updated_at').notNull();
-    table.string('name').notNull();
+    table
+      .string('name')
+      .unique()
+      .notNull();
     // table
     //   .integer('task_id')
     //   .references('tasks.id')

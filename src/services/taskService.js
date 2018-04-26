@@ -11,18 +11,44 @@ export function getTasks(id) {
 export async function createTask(userId, body) {
   let tags = body.tags;
 
-  console.log('tags', tags);
+  console.log('----', body, userId);
+  let taskBs = new Task({ description: body.description, userId });
+  await taskBs.save();
 
-  let task = await new Task({ userId, description: body.description }).save();
-  await task.tags().attach(tags);
+  await taskBs.tags().attach(tags);
+  await taskBs.load(['tags']);
+  // console.log('task', task);
+  await taskBs.refresh();
 
-  return task;
+  // console.log('tags', tags);
+
+  // await task.;
+
+  return taskBs;
 }
 
-export function updateTask(id, body) {
-  console.log('body', body.description);
+export async function updateTask(id, body) {
+  let tasks = await new Task({ id }).save({ description: body.description });
 
-  return new Task({ id }).save({ description: body.description }).then(task => task.refresh());
+  await tasks.load(['tags']);
+  let tags = tasks.relations.tags;
+
+  let toDelete = [];
+
+  tags.toJSON().forEach(element => {
+    if (body.tags.indexOf(element.id) > -1) {
+      body.tags.splice(body.tags.indexOf(element.id), 1);
+      console.log('dalete', element.id, body.tags);
+    } else {
+      toDelete.push(element.id);
+      console.log('add to delete', element.id, toDelete);
+    }
+  });
+
+  await tasks.tags().detach(toDelete);
+  await tasks.tags().attach(body.tags);
+
+  return tasks;
 }
 
 export function deleteTask(id) {
@@ -30,16 +56,14 @@ export function deleteTask(id) {
 }
 
 export function searchTask(req) {
-  console.log(req.params.term);
-
-  // return Task
-  // .where('description', 'LIKE', '%' + req.params.term + '%').fetchAll();
+  // console.log(req.params.term);
 
   return Task.query(q => {
-    q.leftJoin('tasks_tags', 'tasks.id', 'tasks_tags.task_id').select('*');
-    q.leftJoin('tags', 'tasks_tags.tag_id', 'tags.id').select('*');
-    q.where('tasks.description', 'like', `%${req.params.term}%`).orWhere('tags.name', 'like', `%${req.params.term}%`);
-  }).fetchAll();
+    q.leftJoin('tasks_tags', 'tasks.id', 'tasks_tags.task_id');
+    q.leftJoin('tags', 'tasks_tags.tag_id', 'tags.id');
+    q.where('tasks.description', 'like', `%${req.query.term}%`).orWhere('tags.name', 'like', `%${req.query.term}%`);
+  }).fetchAll({ withRelated: ['tags'] });
+  // .fetchPage({ page: 1, pageSize: 8 });
 }
 
 /**
